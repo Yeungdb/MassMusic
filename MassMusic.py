@@ -11,11 +11,12 @@ import wave
 import struct
 
 parser = OptionParser()
+parser.add_option('-o', "--outfile", help="Filename of outfile for audio", action="store")
 parser.add_option('-f', "--filename", help="Filename of file for processing", action="store")
 options, args = parser.parse_args()
 
 filename=options.filename
-
+outfile=options.outfile
 
 def GetArrAndMinMax(lines):
     #Loop Var initialization
@@ -116,7 +117,7 @@ def NormalizeToOne(arr):
 def DownSample(NewSampRate, arr):
     factor = len(arr)/NewSampRate
     decFactArr = []
-    print factor
+    #print factor
     while (factor > 7):
         factor = factor / 7
         if factor != 0:
@@ -126,10 +127,10 @@ def DownSample(NewSampRate, arr):
        intermed = scipy.signal.decimate(intermed, i)
     return intermed
 
-def WriteWav(audioArr):
+def WriteWav(audioArr, outfilename):
     vals = []
-    print len(audioArr)
-    outputfile = wave.open('MS1.wav', 'w')
+    #print len(audioArr)
+    outputfile = wave.open(outfilename, 'w')
     outputfile.setparams((2,2,44100, 0, 'NONE', 'not compressed'))
     appendLen = 44100 - len(audioArr)
     for i in range(appendLen):
@@ -152,18 +153,18 @@ MSlines = file.readlines()
 MSArr, minVal, maxVal = GetArrAndMinMax(MSlines)
 #HzArr = BinUnitMassToHz(MSArr, minVal, maxVal)
 timeArr, HzArr, signalArr = GetIntensityOverTime(MSArr, minVal, maxVal)
-plt.contour(HzArr, timeArr, signalArr)
-plt.xlabel("Frequency (Hz)")
-plt.ylabel("Time (s)")
-plt.savefig("MSSpectrogram.png")
+#plt.contour(HzArr, timeArr, signalArr)
+#plt.xlabel("Frequency (Hz)")
+#plt.ylabel("Time (s)")
+#plt.savefig("MSSpectrogram.png")
 
-plt.clf()
+#plt.clf()
 
 Audio = SpecToAudio(signalArr)
 normAudio = NormalizeToOne(DownSample(44100, Audio))
-plt.plot(normAudio)
-plt.xlabel("Time (s)")
-plt.ylabel("Audio Magnitude")
-plt.savefig("AudioSpec.png")
+#plt.plot(normAudio)
+#plt.xlabel("Time (s)")
+#plt.ylabel("Audio Magnitude")
+#plt.savefig("AudioSpec.png")
 
-WriteWav(normAudio)
+WriteWav(normAudio, outfile)
