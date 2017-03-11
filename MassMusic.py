@@ -13,10 +13,12 @@ import struct
 parser = OptionParser()
 parser.add_option('-o', "--outfile", help="Filename of outfile for audio", action="store")
 parser.add_option('-f', "--filename", help="Filename of file for processing", action="store")
+parser.add_option('-d', "--duration", help="Approximate duration of audio clip in seconds", action="store")
 options, args = parser.parse_args()
 
 filename=options.filename
 outfile=options.outfile
+duration=options.duration 
 
 def GetArrAndMinMax(lines):
     #Loop Var initialization
@@ -117,14 +119,28 @@ def NormalizeToOne(arr):
 def DownSample(NewSampRate, arr):
     factor = len(arr)/NewSampRate
     decFactArr = []
-    #print factor
-    while (factor > 7):
-        factor = factor / 7
-        if factor != 0:
-            decFactArr.append(factor)
+    print len(arr)
+    print NewSampRate
+    print factor
     intermed = arr
+    counter = 0
+    if factor == 0:
+        return intermed 
+    elif factor < 7:
+       intermed = scipy.signal.decimate(intermed, factor)
+       return intermed
+    elif (factor >= 7):
+        while (factor >= 7):
+            factor = factor / 7
+            if(counter == 0):
+                decFactArr.append(factor)
+                counter=1
+            else:
+                decFactArr.append(factor*7)
+            print factor
     for i in decFactArr:
        intermed = scipy.signal.decimate(intermed, i)
+       print len(intermed)
     return intermed
 
 def WriteWav(audioArr, outfilename):
@@ -132,10 +148,11 @@ def WriteWav(audioArr, outfilename):
     #print len(audioArr)
     outputfile = wave.open(outfilename, 'w')
     outputfile.setparams((2,2,44100, 0, 'NONE', 'not compressed'))
-    appendLen = 44100 - len(audioArr)
-    for i in range(appendLen):
-        audioArr.append(0)
-    for j in range(0, 44100):
+    #appendLen = 44100 - len(audioArr)
+    #for i in range(appendLen):
+    #    audioArr.append(0)
+    print len(audioArr)
+    for j in range(0, len(audioArr)):
         value = audioArr[j]*32767
         packed_val = struct.pack('h', value)
         vals.append(packed_val)
@@ -161,7 +178,7 @@ timeArr, HzArr, signalArr = GetIntensityOverTime(MSArr, minVal, maxVal)
 #plt.clf()
 
 Audio = SpecToAudio(signalArr)
-normAudio = NormalizeToOne(DownSample(44100, Audio))
+normAudio = NormalizeToOne(DownSample(int(duration)*44100, Audio))
 #plt.plot(normAudio)
 #plt.xlabel("Time (s)")
 #plt.ylabel("Audio Magnitude")
