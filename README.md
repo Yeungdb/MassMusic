@@ -8,10 +8,10 @@ Have you ever wondered how the spectra you collect from Mass Spec would sound li
 
 You need to use MSConvert from ProteoWizard to convert you Mass Spec raw files to .txt. Then run the code as follows:
 
-```python MassMusic.py -f {FILE}.txt -o {NameOfOutputfile}.wav```
+```python MassMusic.py -f {FILE}.txt -o {NameOfOutputfile}.wav -d {TimeDurationInSeconds}```
 
 eg./
 
-```python MassMusic.py -f 20170310_MassSpecExpXYZ.txt -o MassSpecExpXYZ.wav```
+```python MassMusic.py -f 20170310_MassSpecExpXYZ.txt -o MassSpecExpXYZ.wav -d 1```
 
 Have fun with this new tool!
